@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界杯竞猜 2026</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a1628;--surface:#111d33;--card:#162030;--border:#1e3050;
+  --text:#e8edf5;--text2:#8899b0;--accent:#4CAF50;--accent2:#66bb6a;
+  --gold:#ffd54f;--silver:#b0bec5;--bronze:#ff8a65;
+  --red:#ef5350;--green:#4CAF50;--draw:#42a5f5;
+  --radius:12px;--shadow:0 4px 24px rgba(0,0,0,.4);
+  --font:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+}
+html{font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{color:var(--accent2);text-decoration:none}
+
+/* ── Header ─────────────────────────────────────────── */
+.header{
+  background:linear-gradient(135deg,#0d2137 0%,#163a5c 50%,#0d2137 100%);
+  border-bottom:1px solid var(--border);padding:1.5rem 1rem;text-align:center;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);
+}
+.header h1{font-size:1.6rem;font-weight:700;letter-spacing:.5px}
+.header h1 span{color:var(--gold)}
+.header .subtitle{color:var(--text2);font-size:.85rem;margin-top:.25rem}
+
+/* ── User Bar ───────────────────────────────────────── */
+.user-bar{
+  display:flex;align-items:center;justify-content:center;gap:.75rem;
+  padding:.75rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.user-bar select,.user-bar input,.user-bar button{
+  padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:.85rem;font-family:var(--font);
+}
+.user-bar button{background:var(--accent);border:none;cursor:pointer;font-weight:600}
+.user-bar button:hover{background:var(--accent2)}
+.balance-badge{
+  background:linear-gradient(135deg,#1b5e20,#2e7d32);padding:.4rem .8rem;
+  border-radius:20px;font-weight:600;font-size:.85rem;
+}
+.balance-badge span{color:var(--gold)}
+
+/* ── Tabs ───────────────────────────────────────────── */
+.tabs{
+  display:flex;justify-content:center;gap:0;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:70px;z-index:90;
+}
+.tab-btn{
+  padding:.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;
+  color:var(--text2);cursor:pointer;font-size:.9rem;font-weight:600;
+  font-family:var(--font);transition:all .2s;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent)}
+.tab-panel{display:none;padding:1rem;max-width:900px;margin:0 auto}
+.tab-panel.active{display:block}
+
+/* ── Cards ──────────────────────────────────────────── */
+.match-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem 1.25rem;margin-bottom:.75rem;transition:transform .15s;
+}
+.match-card:hover{transform:translateY(-2px)}
+.match-card.finished{opacity:.85}
+.match-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.25rem}
+.match-meta .group-tag{
+  background:var(--border);padding:.15rem .5rem;border-radius:6px;font-size:.75rem;
+  color:var(--text2);font-weight:600;
+}
+.match-meta .date-tag{font-size:.8rem;color:var(--text2)}
+.match-meta .status-tag{
+  font-size:.7rem;padding:.15rem .5rem;border-radius:6px;font-weight:700;text-transform:uppercase;
+}
+.status-upcoming{background:#1b5e20;color:#a5d6a7}
+.status-finished{background:#4a1414;color:#ef9a9a}
+.status-live{background:#e65100;color:#ffcc80;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+.match-teams{
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  font-size:1.15rem;font-weight:700;padding:.5rem 0;
+}
+.match-teams .vs{color:var(--text2);font-size:.85rem;font-weight:400}
+.match-score{
+  font-size:1.4rem;color:var(--gold);font-weight:800;
+  background:rgba(255,213,79,.08);padding:.2rem .6rem;border-radius:8px;
+}
+.match-odds{
+  display:flex;justify-content:center;gap:.5rem;margin-top:.5rem;
+}
+.odds-chip{
+  font-size:.75rem;padding:.2rem .5rem;border-radius:6px;
+  background:rgba(255,255,255,.05);color:var(--text2);
+}
+
+/* ── Prediction Form ────────────────────────────────── */
+.predict-section{margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.predict-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.predict-row input[type="number"]{
+  width:50px;padding:.4rem;text-align:center;border-radius:6px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text);
+  font-size:1rem;font-weight:700;font-family:var(--font);
+}
+.predict-row input[type="number"]:focus{border-color:var(--accent);outline:none}
+.bet-input{
+  width:80px !important;font-size:.85rem !important;font-weight:400 !important;
+}
+.predict-row .dash{color:var(--text2);font-weight:700;font-size:1.2rem}
+.btn-predict{
+  padding:.4rem .8rem;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;cursor:pointer;font-weight:600;
+  font-size:.8rem;font-family:var(--font);transition:background .2s;
+}
+.btn-predict:hover{background:var(--accent2)}
+.btn-predict:disabled{background:var(--border);cursor:not-allowed;color:var(--text2)}
+.predicted-badge{
+  font-size:.8rem;padding:.3rem .6rem;border-radius:6px;font-weight:600;
+}
+.predicted-badge.pending{background:rgba(66,165,245,.15);color:var(--draw)}
+.predicted-badge.exact{background:rgba(255,213,79,.15);color:var(--gold)}
+.predicted-badge.result{background:rgba(76,175,80,.15);color:var(--green)}
+.predicted-badge.wrong{background:rgba(239,83,80,.15);color:var(--red)}
+
+/* ── Leaderboard ────────────────────────────────────── */
+.leaderboard{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.lb-row{
+  display:grid;grid-template-columns:50px 1fr 100px 70px 70px 100px;
+  padding:.7rem 1rem;align-items:center;border-bottom:1px solid var(--border);
+  font-size:.85rem;
+}
+.lb-row.header{background:var(--surface);font-weight:700;color:var(--text2);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+.lb-row:not(.header):hover{background:rgba(255,255,255,.03)}
+.lb-rank{font-weight:800;font-size:1.1rem}
+.lb-rank.gold{color:var(--gold)}
+.lb-rank.silver{color:var(--silver)}
+.lb-rank.bronze{color:var(--bronze)}
+.lb-name{font-weight:600}
+.lb-balance{font-weight:700;color:var(--gold);text-align:right}
+.lb-stat{text-align:center;color:var(--text2)}
+
+/* ── Admin Panel ────────────────────────────────────── */
+.admin-section{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.25rem;margin-bottom:1rem;
+}
+.admin-section h3{margin-bottom:.75rem;font-size:1rem;color:var(--accent2)}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem}
+.admin-grid input,.admin-grid select{
+  padding:.5rem;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);font-size:.85rem;font-family:var(--font);
+}
+.admin-grid input:focus,.admin-grid select:focus{border-color:var(--accent);outline:none}
+.btn-admin{
+  padding:.5rem 1rem;border-radius:8px;border:none;cursor:pointer;
+  font-weight:600;font-size:.85rem;font-family:var(--font);transition:background .2s;
+}
+.btn-add{background:#1565c0;color:#fff}
+.btn-add:hover{background:#1976d2}
+.btn-settle{background:#e65100;color:#fff}
+.btn-settle:hover{background:#ef6c00}
+.btn-result{background:#6a1b9a;color:#fff}
+.btn-result:hover{background:#7b1fa2}
+.btn-refresh{background:var(--accent);color:#fff}
+.btn-refresh:hover{background:var(--accent2)}
+
+/* ── Toast ──────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  padding:.75rem 1.5rem;border-radius:10px;font-size:.85rem;font-weight:600;
+  z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;
+  box-shadow:var(--shadow);
+}
+.toast.show{opacity:1}
+.toast.success{background:#2e7d32;color:#fff}
+.toast.error{background:#c62828;color:#fff}
+
+/* ── Loading ────────────────────────────────────────── */
+.loading{text-align:center;padding:3rem;color:var(--text2)}
+.spinner{
+  width:32px;height:32px;border:3px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin .7s linear infinite;margin:0 auto .75rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Empty State ────────────────────────────────────── */
+.empty-state{text-align:center;padding:3rem;color:var(--text2)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:.5rem}
+
+/* ── Responsive ─────────────────────────────────────── */
+@media(max-width:640px){
+  .lb-row{grid-template-columns:40px 1fr 80px 50px 50px 80px;font-size:.75rem;padding:.5rem .6rem}
+  .match-teams{font-size:1rem}
+  .tabs{overflow-x:auto}
+  .tab-btn{padding:.6rem 1rem;font-size:.8rem;white-space:nowrap}
+  .admin-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚽ 世界杯竞猜 <span>2026</span></h1>
+  <div class="subtitle">FIFA World Cup 2026 · 朋友圈竞猜积分赛</div>
+</div>
+
+<div class="user-bar" id="userBar">
+  <select id="userSelect"><option value="">选择玩家...</option></select>
+  <div class="balance-badge">余额: <span id="balanceDisplay">—</span></div>
+  <button onclick="refreshAll()" class="btn-refresh" style="padding:.4rem .6rem;font-size:.8rem">🔄 刷新</button>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="matches">📋 赛程</button>
+  <button class="tab-btn" data-tab="leaderboard">🏆 积分榜</button>
+  <button class="tab-btn" data-tab="admin">⚙️ 管理</button>
+</div>
+
+<div class="tab-panel active" id="tab-matches">
+  <div id="matchList"><div class="loading"><div class="spinner"></div>加载赛程中...</div></div>
+</div>
+
+<div class="tab-panel" id="tab-leaderboard">
+  <div id="leaderboard"><div class="loading"><div class="spinner"></div>加载积分榜...</div></div>
+</div>
+
+<div class="tab-panel" id="tab-admin">
+  <!-- Add Match -->
+  <div class="admin-section">
+    <h3>➕ 添加比赛</h3>
+    <div class="admin-grid">
+      <input id="am-id" placeholder="比赛编号 (如 G1)">
+      <input id="am-date" type="date">
+      <input id="am-time" type="time" value="21:00">
+      <input id="am-teamA" placeholder="主队">
+      <input id="am-teamB" placeholder="客队">
+      <input id="am-group" placeholder="组别/轮次">
+      <input id="am-oddsA" type="number" step="0.01" placeholder="主胜赔率">
+      <input id="am-oddsDraw" type="number" step="0.01" placeholder="平局赔率">
+      <input id="am-oddsB" type="number" step="0.01" placeholder="客胜赔率">
+    </div>
+    <button class="btn-admin btn-add" style="margin-top:.75rem" onclick="addMatch()">添加比赛</button>
+  </div>
+
+  <!-- Set Result -->
+  <div class="admin-section">
+    <h3>📝 录入比赛结果</h3>
+    <div class="admin-grid">
+      <select id="sr-match"><option value="">选择比赛...</option></select>
+      <input id="sr-scoreA" type="number" min="0" placeholder="主队比分">
+      <input id="sr-scoreB" type="number" min="0" placeholder="客队比分">
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.75rem">
+      <button class="btn-admin btn-result" onclick="setResult()">录入结果</button>
+      <button class="btn-admin btn-settle" onclick="settleSelected()">结算积分</button>
+    </div>
+  </div>
+
+  <!-- Add User -->
+  <div class="admin-section">
+    <h3>👤 添加玩家</h3>
+    <div class="admin-grid">
+      <input id="au-name" placeholder="玩家名">
+      <input id="au-balance" type="number" value="1000" placeholder="初始积分">
+    </div>
+    <button class="btn-admin btn-add" style="margin-top:.75rem" onclick="addUser()">添加玩家</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbyjZFUe75lizWIwFq1qXiiwDPAPU1xcS_SiSB6dPF6iKzaVli-DFr14l69R_E_5bxz8/exec';
+
+let matches = [];
+let predictions = [];
+let users = [];
+let currentUser = '';
+
+/* ── API helpers ────────────────────────────────────── */
+
+async function apiGet(action, params = {}) {
+  const qs = new URLSearchParams({ action, ...params });
+  const res = await fetch(`${API}?${qs}`);
+  return res.json();
+}
+
+async function apiPost(data) {
+  const res = await fetch(API, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+/* ── Init ───────────────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  refreshAll();
+  const saved = localStorage.getItem('wcg-user');
+  if (saved) {
+    currentUser = saved;
+  }
+});
+
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+async function refreshAll() {
+  try {
+    const [m, u] = await Promise.all([apiGet('getMatches'), apiGet('getUsers')]);
+    matches = Array.isArray(m) ? m : [];
+    users = Array.isArray(u) ? u : [];
+    populateUserSelect();
+    if (currentUser) {
+      const p = await apiGet('getPredictions', { user: currentUser });
+      predictions = Array.isArray(p) ? p : [];
+    }
+    renderMatches();
+    renderLeaderboard();
+    populateMatchSelect();
+    updateBalance();
+  } catch (e) {
+    toast('加载失败: ' + e.message, 'error');
+  }
+}
+
+/* ── User Select ────────────────────────────────────── */
+
+function populateUserSelect() {
+  const sel = document.getElementById('userSelect');
+  const prev = sel.value || currentUser;
+  sel.innerHTML = '<option value="">选择玩家...</option>';
+  users.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.userName;
+    opt.textContent = u.userName;
+    sel.appendChild(opt);
+  });
+  if (prev) sel.value = prev;
+  sel.onchange = async () => {
+    currentUser = sel.value;
+    localStorage.setItem('wcg-user', currentUser);
+    if (currentUser) {
+      const p = await apiGet('getPredictions', { user: currentUser });
+      predictions = Array.isArray(p) ? p : [];
+    } else {
+      predictions = [];
+    }
+    renderMatches();
+    updateBalance();
+  };
+}
+
+function updateBalance() {
+  const el = document.getElementById('balanceDisplay');
+  if (!currentUser) { el.textContent = '—'; return; }
+  const u = users.find(u => u.userName === currentUser);
+  el.textContent = u ? u.balance.toLocaleString() : '—';
+}
+
+/* ── Render Matches ─────────────────────────────────── */
+
+function renderMatches() {
+  const container = document.getElementById('matchList');
+  if (!matches.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚽</div>暂无比赛数据<br>请在管理面板添加比赛</div>';
+    return;
+  }
+
+  const sorted = [...matches].sort((a, b) => {
+    if (a.status === 'upcoming' && b.status !== 'upcoming') return -1;
+    if (a.status !== 'upcoming' && b.status === 'upcoming') return 1;
+    return String(a.date).localeCompare(String(b.date)) || String(a.time).localeCompare(String(b.time));
+  });
+
+  container.innerHTML = sorted.map(m => {
+    const mid = String(m.matchId);
+    const pred = predictions.find(p => String(p.matchId) === mid);
+    const isFinished = m.status === 'finished';
+    const hasScore = m.scoreA !== '' && m.scoreB !== '';
+
+    let predictionHtml = '';
+    if (isFinished && pred) {
+      const cls = pred.settled || 'pending';
+      const labels = { exact: '🎯 精准', result: '✅ 猜对', wrong: '❌ 猜错', pending: '⏳ 待结算' };
+      predictionHtml = `
+        <div class="predict-section">
+          <div class="predict-row">
+            <span style="color:var(--text2);font-size:.8rem">你的预测: ${pred.predictedA} - ${pred.predictedB} (下注 ${pred.betAmount})</span>
+            <span class="predicted-badge ${cls}">${labels[cls] || cls}</span>
+          </div>
+        </div>`;
+    } else if (!isFinished && pred) {
+      predictionHtml = `
+        <div class="predict-section">
+          <div class="predict-row">
+            <span style="color:var(--text2);font-size:.8rem">✅ 已预测: ${pred.predictedA} - ${pred.predictedB} (下注 ${pred.betAmount})</span>
+            <span class="predicted-badge pending">⏳ 等待结果</span>
+          </div>
+        </div>`;
+    } else if (!isFinished && currentUser && !pred) {
+      predictionHtml = `
+        <div class="predict-section">
+          <div class="predict-row">
+            <input type="number" min="0" max="99" id="pa-${mid}" placeholder="0" class="score-input">
+            <span class="dash">:</span>
+            <input type="number" min="0" max="99" id="pb-${mid}" placeholder="0" class="score-input">
+            <input type="number" min="10" step="10" value="100" id="bet-${mid}" placeholder="下注" class="bet-input">
+            <button class="btn-predict" onclick="submitPrediction('${mid}')">下注</button>
+          </div>
+        </div>`;
+    }
+
+    const oddsHtml = (m.oddsA || m.oddsDraw || m.oddsB) ? `
+      <div class="match-odds">
+        ${m.oddsA ? `<span class="odds-chip">主胜 ${m.oddsA}</span>` : ''}
+        ${m.oddsDraw ? `<span class="odds-chip">平局 ${m.oddsDraw}</span>` : ''}
+        ${m.oddsB ? `<span class="odds-chip">客胜 ${m.oddsB}</span>` : ''}
+      </div>` : '';
+
+    const scoreHtml = hasScore ? `<span class="match-score">${m.scoreA} - ${m.scoreB}</span>` : '<span class="vs">VS</span>';
+    const statusCls = m.status === 'finished' ? 'status-finished' : 'status-upcoming';
+    const statusLabel = m.status === 'finished' ? '已结束' : '未开始';
+
+    return `
+      <div class="match-card ${isFinished ? 'finished' : ''}">
+        <div class="match-meta">
+          <span class="group-tag">${m.group || ''}</span>
+          <span class="date-tag">${formatDate(m.date)} ${m.time || ''}</span>
+          <span class="status-tag ${statusCls}">${statusLabel}</span>
+        </div>
+        <div class="match-teams">
+          <span>${m.teamA}</span>
+          ${scoreHtml}
+          <span>${m.teamB}</span>
+        </div>
+        ${oddsHtml}
+        ${predictionHtml}
+      </div>`;
+  }).join('');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const s = String(d);
+  if (s.includes('T')) return s.split('T')[0];
+  return s;
+}
+
+/* ── Submit Prediction ──────────────────────────────── */
+
+async function submitPrediction(matchId) {
+  if (!currentUser) { toast('请先选择玩家', 'error'); return; }
+  const a = document.getElementById('pa-' + matchId)?.value;
+  const b = document.getElementById('pb-' + matchId)?.value;
+  const bet = document.getElementById('bet-' + matchId)?.value;
+  if (a === '' || b === '') { toast('请填写比分', 'error'); return; }
+
+  const res = await apiPost({
+    action: 'submitPrediction',
+    matchId, userName: currentUser,
+    predictedA: Number(a), predictedB: Number(b),
+    betAmount: Number(bet) || 100,
+  });
+
+  if (res.error) { toast(res.error, 'error'); return; }
+  toast('下注成功！', 'success');
+  await refreshAll();
+}
+
+/* ── Leaderboard ────────────────────────────────────── */
+
+async function renderLeaderboard() {
+  const container = document.getElementById('leaderboard');
+  let data;
+  try {
+    data = await apiGet('getLeaderboard');
+  } catch {
+    data = [];
+  }
+  if (!Array.isArray(data) || !data.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🏆</div>暂无积分数据</div>';
+    return;
+  }
+
+  const rankColors = ['gold', 'silver', 'bronze'];
+  const rankIcons = ['🥇', '🥈', '🥉'];
+
+  container.innerHTML = `
+    <div class="leaderboard">
+      <div class="lb-row header">
+        <div>#</div><div>玩家</div><div>余额</div><div>精准</div><div>猜对</div><div>总下注</div>
+      </div>
+      ${data.map((u, i) => `
+        <div class="lb-row">
+          <div class="lb-rank ${rankColors[i] || ''}">${i < 3 ? rankIcons[i] : i + 1}</div>
+          <div class="lb-name">${u.userName}</div>
+          <div class="lb-balance">${u.balance.toLocaleString()}</div>
+          <div class="lb-stat">${u.exactWins}</div>
+          <div class="lb-stat">${u.resultWins}</div>
+          <div class="lb-stat">${u.totalWagered.toLocaleString()}</div>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+/* ── Admin: Match Select ────────────────────────────── */
+
+function populateMatchSelect() {
+  const sel = document.getElementById('sr-match');
+  sel.innerHTML = '<option value="">选择比赛...</option>';
+  matches.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.matchId;
+    opt.textContent = `${m.matchId} · ${m.teamA} vs ${m.teamB}`;
+    sel.appendChild(opt);
+  });
+}
+
+/* ── Admin: Add Match ───────────────────────────────── */
+
+async function addMatch() {
+  const data = {
+    action: 'addMatch',
+    matchId: document.getElementById('am-id').value,
+    date: document.getElementById('am-date').value,
+    time: document.getElementById('am-time').value,
+    teamA: document.getElementById('am-teamA').value,
+    teamB: document.getElementById('am-teamB').value,
+    group: document.getElementById('am-group').value,
+    oddsA: document.getElementById('am-oddsA').value,
+    oddsDraw: document.getElementById('am-oddsDraw').value,
+    oddsB: document.getElementById('am-oddsB').value,
+  };
+  if (!data.matchId || !data.teamA || !data.teamB) { toast('请填写必填项', 'error'); return; }
+  const res = await apiPost(data);
+  if (res.error) { toast(res.error, 'error'); return; }
+  toast('比赛已添加！', 'success');
+  ['am-id','am-teamA','am-teamB','am-group','am-oddsA','am-oddsDraw','am-oddsB'].forEach(id => document.getElementById(id).value = '');
+  await refreshAll();
+}
+
+/* ── Admin: Set Result ──────────────────────────────── */
+
+async function setResult() {
+  const matchId = document.getElementById('sr-match').value;
+  const scoreA = document.getElementById('sr-scoreA').value;
+  const scoreB = document.getElementById('sr-scoreB').value;
+  if (!matchId || scoreA === '' || scoreB === '') { toast('请填写完整', 'error'); return; }
+  const res = await apiPost({ action: 'setResult', matchId, scoreA: Number(scoreA), scoreB: Number(scoreB) });
+  if (res.error) { toast(res.error, 'error'); return; }
+  toast('结果已录入！', 'success');
+  await refreshAll();
+}
+
+async function settleSelected() {
+  const matchId = document.getElementById('sr-match').value;
+  if (!matchId) { toast('请先选择比赛', 'error'); return; }
+  const res = await apiPost({ action: 'settleMatch', matchId });
+  if (res.error) { toast(res.error, 'error'); return; }
+  toast(`结算完成！${res.settled?.length || 0} 条预测已处理`, 'success');
+  await refreshAll();
+}
+
+/* ── Admin: Add User ────────────────────────────────── */
+
+async function addUser() {
+  const userName = document.getElementById('au-name').value;
+  const balance = Number(document.getElementById('au-balance').value) || 1000;
+  if (!userName) { toast('请输入玩家名', 'error'); return; }
+  const res = await apiPost({ action: 'addUser', userName, balance });
+  if (res.error) { toast(res.error, 'error'); return; }
+  toast('玩家已添加！', 'success');
+  document.getElementById('au-name').value = '';
+  await refreshAll();
+}
+
+/* ── Toast ──────────────────────────────────────────── */
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
